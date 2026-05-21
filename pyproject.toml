@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "youtube-cli"
+version = "1.0.0"
+description = "CLI tool for YouTube: extract transcripts and search videos"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "Pedro"}]
+dependencies = [
+    "youtube-transcript-api>=0.6.0",
+    "google-api-python-client>=2.0.0",
+]
+
+[project.scripts]
+youtube = "youtube_cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.urls]
+Repository = "https://github.com/pedro/youtube-cli"
