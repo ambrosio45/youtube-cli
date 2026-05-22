@@ -5,13 +5,31 @@ description: Extract YouTube video transcripts from youtube links, search videos
 
 # YouTube CLI Skill
 
-## Quick Start
+## Installation
 
-### Installation
+### CLI Installation
 
 ```bash
-pip install -e git+https://github.com/pedro/youtube-cli.git
+pip install -e git+https://github.com/ambrosio45/youtube-cli.git
 ```
+
+### Agent Configuration
+
+Copy the skill files to your agent's skills directory:
+
+| Agent | Skill Directory |
+|-------|-----------------|
+| **OpenCode** | `~/.config/opencode/skills/youtube-cli/` or `.opencode/skills/youtube-cli/` in project |
+| **Claude** | `~/.claude/skills/youtube-cli/` |
+| **Codex** | Agent-specific skills directory |
+| **Hermes** | Agent-specific skills directory |
+| **OpenClaw** | Agent-specific skills directory |
+
+For OpenCode, create `.opencode/skills/youtube-cli/` in your project and copy:
+- `SKILL.md`
+- `REFERENCE.md`
+- `EXAMPLES.md`
+- `TROUBLESHOOTING.md`
 
 ### Configuration
 
@@ -19,13 +37,17 @@ pip install -e git+https://github.com/pedro/youtube-cli.git
 export YOUTUBE_API_KEY="your_youtube_api_key"
 ```
 
-### Basic Usage
+### VPS / Proxy Configuration
+
+For VPS users or bulk operations, Webshare proxy is recommended:
 
 ```bash
-youtube "https://youtube.com/watch?v=VIDEO_ID" -o ./output
+export USE_PROXY="true"
+export PROXY_USER="your_webshare_username"
+export PROXY_PASS="your_webshare_password"
 ```
 
----
+> **Important:** Proxy support only works for **transcript extraction**, not for search or channel commands.
 
 ## Usage Modes
 
@@ -93,18 +115,18 @@ youtube --channel "Channel Name" --maxResults 50 --order date -o ./output
 
 ---
 
-## ⚠️ Rate Limiting Warning
+## Rate Limiting
 
 Making many consecutive API calls may result in IP ban from YouTube.
 
-**For sustained or batch operations, use Webshare proxy:**
+**For sustained or bulk transcript operations, use Webshare proxy:**
 ```bash
 export USE_PROXY="true"
 export PROXY_USER="your_webshare_user"
 export PROXY_PASS="your_webshare_pass"
 ```
 
-Note: Proxy configuration only works with Webshare proxy credentials.
+> **Note:** Proxy configuration only works for **transcript extraction**. Search and channel commands do not use proxy.
 
 ---
 

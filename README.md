@@ -5,13 +5,13 @@ CLI tool for extracting YouTube video transcripts and searching YouTube videos.
 ## Installation
 
 ```bash
-pip install -e git+https://github.com/pedro/youtube-cli.git
+pip install -e git+https://github.com/ambrosio45/youtube-cli.git
 ```
 
 Or in development mode:
 
 ```bash
-git clone https://github.com/pedro/youtube-cli.git
+git clone https://github.com/ambrosio45/youtube-cli.git
 cd youtube-cli
 pip install -e .
 ```
@@ -76,6 +76,19 @@ youtube --channel "Channel Name" -o ./output
 youtube --channel "Channel Name" --maxResults 50 --order date -o ./output
 ```
 
+### VPS / Server Users
+
+For VPS users or bulk operations, Webshare proxy is recommended to avoid IP bans:
+
+```bash
+export USE_PROXY="true"
+export PROXY_USER="your_webshare_username"
+export PROXY_PASS="your_webshare_password"
+youtube "URL" -o ./output
+```
+
+> **Note:** Proxy support is only available for transcript extraction, not for search or channel commands.
+
 ## Options
 
 | Flag | Description | Default |
@@ -96,14 +109,14 @@ youtube --channel "Channel Name" --maxResults 50 --order date -o ./output
 ```markdown
 # Video Title
 
-**Canal:** Channel Name
+**Channel:** Channel Name
 **URL:** https://youtube.com/watch?v=...
-**Idioma:** en
-**Publicado em:** 01/01/2024
-**Duração:** 12:34
+**Language:** en
+**Published:** 01/01/2024
+**Duration:** 12:34
 **Views:** 1.234
 **Likes:** 567
-**Comentários:** 89
+**Comments:** 89
 **Tags:** tag1, tag2
 
 ---
@@ -122,14 +135,14 @@ Transcript text here...
 
 1. Video Title
 
-   Canal: Channel Name
+   Channel: Channel Name
    URL: https://youtube.com/watch?v=...
-   Idioma: en
-   Publicação: 01/01/2024
-   Duração: 12:34
+   Language: en
+   Published: 01/01/2024
+   Duration: 12:34
    Views: 1.234
    Likes: 567
-   Comentários: 89
+   Comments: 89
    Tags: tag1, tag2
 ```
 

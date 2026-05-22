@@ -103,7 +103,7 @@ youtube -s "python" --order date --publishedAfter 2024-01-01 --maxResults 50 -c 
 
 ## Proxy Usage
 
-For batch operations or when YouTube blocks your IP:
+For bulk transcript extraction or when YouTube blocks your IP, use Webshare proxy:
 
 ```bash
 export USE_PROXY="true"
@@ -113,6 +113,8 @@ export PROXY_PASS="your_webshare_password"
 youtube -s "batch search" -o ./output
 youtube urls.txt -o ./batch-output
 ```
+
+> **Note:** Proxy support is only available for transcript extraction, not for search or channel commands.
 
 ---
 
@@ -155,10 +157,11 @@ youtube urls.txt -o ./batch-output
 
 If you get rate limited:
 ```bash
-# Wait and retry with proxy
+# Use Webshare proxy for transcript extraction
 export USE_PROXY="true"
 export PROXY_USER="webshare_user"
 export PROXY_PASS="webshare_pass"
+# Note: proxy only works for transcript extraction, not search/channel
 ```
 
 ### No Captions Available

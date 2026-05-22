@@ -5,13 +5,13 @@
 ### From Git
 
 ```bash
-pip install -e git+https://github.com/pedro/youtube-cli.git
+pip install -e git+https://github.com/ambrosio45/youtube-cli.git
 ```
 
 ### Development Mode
 
 ```bash
-git clone https://github.com/pedro/youtube-cli.git
+git clone https://github.com/ambrosio45/youtube-cli.git
 cd youtube-cli
 pip install -e .
 ```
@@ -134,14 +134,14 @@ youtube --channel "Channel Name" --order date -o ./output
 ```markdown
 # Video Title
 
-**Canal:** Channel Name
+**Channel:** Channel Name
 **URL:** https://youtube.com/watch?v=...
-**Idioma:** en
-**Publicado em:** 01/01/2024
-**Duração:** 12:34
+**Language:** en
+**Published:** 01/01/2024
+**Duration:** 12:34
 **Views:** 1.234
 **Likes:** 567
-**Comentários:** 89
+**Comments:** 89
 **Tags:** tag1, tag2
 
 ---
@@ -160,18 +160,18 @@ Transcript text content here...
 
 1. Video Title
 
-   Canal: Channel Name
+   Channel: Channel Name
    URL: https://youtube.com/watch?v=...
-   Idioma: en
-   Publicação: 01/01/2024
-   Duração: 12:34
+   Language: en
+   Published: 01/01/2024
+   Duration: 12:34
    Views: 1.234
    Likes: 567
-   Comentários: 89
+   Comments: 89
    Tags: tag1, tag2
 
 2. Another Video
-   ...
+    ...
 ```
 
 ### Channel Output
@@ -185,15 +185,15 @@ Transcript text content here...
 
 ## Channel Statistics
 
-   **Nome:** Channel Name
-   **Inscritos:** 1.234.567
-   **Total de Vídeos:** 890
-   **Total de Visualizações:** 123.456.789
+   **Name:** Channel Name
+   **Subscribers:** 1.234.567
+   **Total Videos:** 890
+   **Total Views:** 123.456.789
 
 ---
 
 1. Video Title
-   ...
+    ...
 ```
 
 ---

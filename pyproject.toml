@@ -21,4 +21,4 @@ youtube = "youtube_cli.main:main"
 where = ["src"]
 
 [project.urls]
-Repository = "https://github.com/pedro/youtube-cli"
+Repository = "https://github.com/ambrosio45/youtube-cli"

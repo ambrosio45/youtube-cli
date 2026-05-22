@@ -51,7 +51,7 @@ def validate_date(date_str: str) -> bool:
 
 
 def _enrich_results_with_details(results: List[dict], video_ids: List[str]) -> None:
-    """Enriquece resultados com detalhes da API (in-place)."""
+    """Enriches results with API details (in-place)."""
     details = get_video_details(video_ids)
     for r in results:
         vid = r["video_id"]
@@ -168,7 +168,7 @@ def sanitize_filename(name: str) -> str:
     return name
 
 
-def extrair_transcricao(url: str, languages: List[str]) -> Optional[str]:
+def extract_transcript(url: str, languages: List[str]) -> Optional[str]:
     video_id = get_video_id(url)
     if not video_id:
         return None
@@ -183,18 +183,18 @@ def extrair_transcricao(url: str, languages: List[str]) -> Optional[str]:
         transcript = ytt_api.fetch(video_id, languages=languages)
         dict_transcript = transcript.to_raw_data()
 
-        texto_arquivo = []
+        lines = []
         for t in dict_transcript:
-            texto_arquivo.append(t["text"])
+            lines.append(t["text"])
 
-        return " ".join(texto_arquivo)
+        return " ".join(lines)
 
     except Exception as erro:
         print(f"Error extracting transcript: {erro}", flush=True)
         return None
 
 
-def processar_url(url: str, pasta_saida: str) -> bool:
+def process_url(url: str, output_dir: str) -> bool:
     video_id = get_video_id(url)
     if not video_id:
         print(f"Invalid URL: {url}", flush=True)
@@ -210,14 +210,78 @@ def processar_url(url: str, pasta_saida: str) -> bool:
     else:
         languages = ["en", "pt"]
 
-    nome_arquivo = sanitize_filename(f"{metadata['channel']} - {metadata['title']}")
-    caminho_arquivo = os.path.join(pasta_saida, f"{nome_arquivo}.md")
+    filename = sanitize_filename(f"{metadata['channel']} - {metadata['title']}")
+    output_path = os.path.join(output_dir, f"{filename}.md")
 
-    if os.path.exists(caminho_arquivo):
-        print(f"File already exists, skipping: {nome_arquivo}.md", flush=True)
+    if os.path.exists(output_path):
+        print(f"File already exists, skipping: {filename}.md", flush=True)
         return False
 
-    transcricao = extrair_transcricao(url, languages)
+    transcript = extract_transcript(url, languages)
+    if not transcript:
+        print(f"Failed to extract transcript: {url}", flush=True)
+        return False
+
+    tags_str = ", ".join(metadata["tags"]) if metadata["tags"] else "N/A"
+
+    lines = [
+        f"# {metadata['title']}",
+        "",
+        f"**Channel:** {metadata['channel']}",
+        "",
+        f"**URL:** {url}",
+        "",
+        f"**Language:** {metadata['default_language']}",
+        "",
+        f"**Published:** {metadata['published_at']}",
+        "",
+        f"**Duration:** {metadata['duration']}",
+        "",
+        f"**Views:** {format_number(metadata['views'])}",
+        "",
+        f"**Likes:** {format_number(metadata['likes'])}",
+        "",
+        f"**Comments:** {format_number(metadata['comments'])}",
+        "",
+        f"**Tags:** {tags_str}",
+        "",
+        "---",
+        "",
+        transcript,
+    ]
+
+    content = "\n".join(lines)
+
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"Transcript saved successfully!", flush=True)
+        print(f"   Channel: {metadata['channel']}", flush=True)
+        print(f"   Duration: {metadata['duration']}", flush=True)
+        print(f"   File: {filename}.md", flush=True)
+        return True
+    except Exception as e:
+        print(f"Error saving file: {e}", flush=True)
+        return False
+
+    print(f"Downloading video transcript...", flush=True)
+
+    metadata = get_video_metadata(video_id)
+
+    default_lang = metadata.get("default_language", "N/A")
+    if default_lang != "N/A":
+        languages = [default_lang, "en", "pt"]
+    else:
+        languages = ["en", "pt"]
+
+    filename = sanitize_filename(f"{metadata['channel']} - {metadata['title']}")
+    output_path = os.path.join(output_dir, f"{filename}.md")
+
+    if os.path.exists(output_path):
+        print(f"File already exists, skipping: {filename}.md", flush=True)
+        return False
+
+    transcript = extract_transcript(url, languages)
     if not transcricao:
         print(f"Failed to extract transcript: {url}", flush=True)
         return False
@@ -253,29 +317,29 @@ def processar_url(url: str, pasta_saida: str) -> bool:
     conteudo = "\n".join(lines)
 
     try:
-        with open(caminho_arquivo, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(conteudo)
         print(f"Transcript saved successfully!", flush=True)
         print(f"   Channel: {metadata['channel']}", flush=True)
         print(f"   Duration: {metadata['duration']}", flush=True)
-        print(f"   File: {nome_arquivo}.md", flush=True)
+        print(f"   File: {filename}.md", flush=True)
         return True
     except Exception as erro:
         print(f"Error saving file: {erro}", flush=True)
         return False
 
 
-def processar_arquivo(caminho_arquivo: str, pasta_saida: str) -> bool:
-    if not os.path.exists(caminho_arquivo):
-        print(f"File not found: {caminho_arquivo}", flush=True)
+def process_file(filepath: str, output_dir: str) -> bool:
+    if not os.path.exists(filepath):
+        print(f"File not found: {filepath}", flush=True)
         return False
 
-    with open(caminho_arquivo, "r", encoding="utf-8") as f:
-        conteudo = f.read()
+    with open(filepath, "r", encoding="utf-8") as f:
+        content = f.read()
 
     video_ids = re.findall(
         r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/|/v/|/embed/)([A-Za-z0-9_-]{11})",
-        conteudo,
+        content,
     )
 
     video_ids = list(dict.fromkeys(video_ids))
@@ -283,18 +347,18 @@ def processar_arquivo(caminho_arquivo: str, pasta_saida: str) -> bool:
     urls = [f"https://www.youtube.com/watch?v={vid}" for vid in video_ids]
 
     if not urls:
-        print(f"No YouTube URLs found in file: {caminho_arquivo}", flush=True)
+        print(f"No YouTube URLs found in file: {filepath}", flush=True)
         return False
 
     print(f"Found {len(urls)} URLs in file", flush=True)
 
-    sucesso = 0
+    success = 0
     for url in urls:
-        if processar_url(url, pasta_saida):
-            sucesso += 1
+        if process_url(url, output_dir):
+            success += 1
 
-    print(f"Processed: {sucesso}/{len(urls)} URLs successfully", flush=True)
-    return sucesso > 0
+    print(f"Processed: {success}/{len(urls)} URLs successfully", flush=True)
+    return success > 0
 
 
 def get_video_details(video_ids: List[str]) -> dict:
@@ -634,39 +698,66 @@ def format_search_results(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="YouTube CLI: extract transcripts or search videos",
+        description="YouTube CLI - Extract transcripts or search videos",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Extract transcript from video
+  youtube "https://youtube.com/watch?v=VIDEO_ID" -o ./output
+
+  # Search videos
+  youtube -s "python tutorial" -o ./output
+  youtube --search "topic" --maxResults 20 -o ./output
+
+  # Channel search
+  youtube --channel "Channel Name" -o ./output
+
+  # Transcript extraction supports proxy (search does not)
+  export USE_PROXY="true"
+  export PROXY_USER="webshare_user"
+  export PROXY_PASS="webshare_pass"
+  youtube "URL" -o ./output
+""",
     )
 
-    parser.add_argument("entrada", nargs="?", help="URL or search term")
+    parser.add_argument("input", nargs="?", help="URL, search term, or file with URLs")
     parser.add_argument(
-        "entradas_extras", nargs="*", help="Additional URLs or arguments"
+        "extra_inputs", nargs="*", help="Additional URLs or search terms"
     )
     parser.add_argument(
-        "-o", "--output", required=True, help="Output directory for files"
+        "-o", "--output", required=True, help="Output directory (required)"
     )
     parser.add_argument("--search", "-s", action="store_true", help="Search mode")
     parser.add_argument(
         "--order",
         default="relevance",
         choices=["relevance", "date", "viewCount", "rating"],
-    )
-    parser.add_argument("--publishedAfter", default=None)
-    parser.add_argument("--maxResults", type=int, default=10)
-    parser.add_argument(
-        "--comments",
-        "-c",
-        type=int,
-        default=0,
-        help="Number of top comments to display",
+        help="Sort order (default: relevance)"
     )
     parser.add_argument(
-        "--description", "-d", action="store_true", help="Show video description"
+        "--publishedAfter",
+        help="Filter videos published after date (YYYY-MM-DD)"
     )
-    parser.add_argument("--channel", action="store_true", help="Channel search mode")
+    parser.add_argument(
+        "--maxResults", type=int, default=10,
+        help="Maximum results to return (default: 10)"
+    )
+    parser.add_argument(
+        "--comments", "-c", type=int, default=0,
+        help="Number of top comments to include per video"
+    )
+    parser.add_argument(
+        "--description", "-d", action="store_true",
+        help="Include video description in output"
+    )
+    parser.add_argument(
+        "--channel", action="store_true",
+        help="Channel search mode"
+    )
 
     args = parser.parse_args()
 
-    if not args.entrada:
+    if not args.input:
         parser.print_help()
         sys.exit(1)
 
@@ -675,20 +766,20 @@ def main():
 
     if args.publishedAfter and not validate_date(args.publishedAfter):
         print(f"Error: invalid date '{args.publishedAfter}'", flush=True)
-        print("Use o formato: YYYY-MM-DD (ex: 2024-01-15)", flush=True)
+        print("Use format: YYYY-MM-DD (e.g. 2024-01-15)", flush=True)
         sys.exit(1)
 
     if args.publishedAfter:
         args.publishedAfter = f"{args.publishedAfter}T00:00:00Z"
 
-    is_search = args.search or args.entrada == "search"
-    is_channel = args.channel or args.entrada == "channel"
+    is_search = args.search or args.input == "search"
+    is_channel = args.channel or args.input == "channel"
 
     if is_channel:
-        if args.entrada == "channel":
-            channel_name = args.entradas_extras[0] if args.entradas_extras else ""
+        if args.input == "channel":
+            channel_name = args.inputs_extras[0] if args.inputs_extras else ""
         else:
-            channel_name = args.entrada
+            channel_name = args.input
 
         if not channel_name:
             print("Error: channel name is required", flush=True)
@@ -728,33 +819,33 @@ def main():
         flags_str = " ".join(flags)
         channel_sanitized = re.sub(r'[<>:"/\\|?*]', "_", channel_name)
         filename = f"youtube channel {channel_sanitized} {flags_str}".strip()
-        caminho_arquivo = os.path.join(args.output, f"{filename}.md")
+        output_path = os.path.join(args.output, f"{filename}.md")
 
-        with open(caminho_arquivo, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(f"# YouTube Channel: {channel_name}\n\n")
             if flags:
                 f.write(f"**Flags:** {flags_str}\n\n")
             f.write("---\n\n")
             f.write(output)
 
-        print(f"Saved: {caminho_arquivo}", flush=True)
+        print(f"Saved: {output_path}", flush=True)
 
     elif is_search:
-        if args.entrada == "search":
-            query = args.entradas_extras[0] if args.entradas_extras else ""
-            entradas_extras = (
-                args.entradas_extras[1:] if len(args.entradas_extras) > 1 else []
+        if args.input == "search":
+            query = args.inputs_extras[0] if args.inputs_extras else ""
+            extra_inputs = (
+                args.inputs_extras[1:] if len(args.inputs_extras) > 1 else []
             )
         else:
-            query = args.entrada
-            entradas_extras = args.entradas_extras
+            query = args.input
+            extra_inputs = args.inputs_extras
 
         if not query:
             print("Error: search term is required", flush=True)
             sys.exit(1)
 
-        if entradas_extras:
-            query = query + " " + " ".join(entradas_extras)
+        if extra_inputs:
+            query = query + " " + " ".join(extra_inputs)
 
         published_after = None
         if args.publishedAfter:
@@ -794,41 +885,41 @@ def main():
         flags_str = " ".join(flags)
         query_sanitized = re.sub(r'[<>:"/\\|?*]', "_", query)
         filename = f"youtube search {query_sanitized} {flags_str}".strip()
-        caminho_arquivo = os.path.join(args.output, f"{filename}.md")
+        output_path = os.path.join(args.output, f"{filename}.md")
 
-        with open(caminho_arquivo, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(f"# YouTube Search: {query}\n\n")
             if flags:
                 f.write(f"**Flags:** {flags_str}\n\n")
             f.write("---\n\n")
             f.write(output)
 
-        print(f"Saved: {caminho_arquivo}", flush=True)
+        print(f"Saved: {output_path}", flush=True)
 
     else:
-        urls = [args.entrada] + args.entradas_extras
-        pasta_saida = args.output
-        urls_diretas = []
-        arquivo_urls = None
+        urls = [args.input] + args.inputs_extras
+        output_dir = args.output
+        direct_urls = []
+        url_file = None
 
         for entrada in urls:
             if entrada.endswith(".txt") or entrada.endswith(".md"):
-                arquivo_urls = entrada
+                url_file = entrada
             else:
-                urls_diretas.append(entrada)
+                direct_urls.append(entrada)
 
-        if arquivo_urls and urls_diretas:
+        if url_file and direct_urls:
             print(
                 "Error: cannot use URL file together with direct URLs",
                 flush=True,
             )
             sys.exit(1)
 
-        if arquivo_urls:
-            processar_arquivo(arquivo_urls, pasta_saida)
+        if url_file:
+            process_file(url_file, output_dir)
         else:
-            for url in urls_diretas:
-                processar_url(url, pasta_saida)
+            for url in direct_urls:
+                process_url(url, output_dir)
 
 
 if __name__ == "__main__":

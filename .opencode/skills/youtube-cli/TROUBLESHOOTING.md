@@ -2,7 +2,7 @@
 
 ## Common Errors
 
-### "YOUTUBE_API_KEY não configurada"
+### "YOUTUBE_API_KEY not configured"
 
 **Cause:** Environment variable not set.
 
@@ -13,7 +13,7 @@ export YOUTUBE_API_KEY="your_api_key_here"
 
 ---
 
-### "URL inválida" / Invalid URL
+### Invalid URL
 
 **Cause:** URL format not recognized.
 
@@ -48,16 +48,18 @@ export YOUTUBE_API_KEY="your_api_key_here"
 
 **Solution:**
 - Wait 24 hours (quota usually resets)
-- Use Webshare proxy:
+- Use Webshare proxy for transcript extraction:
   ```bash
   export USE_PROXY="true"
   export PROXY_USER="your_webshare_user"
   export PROXY_PASS="your_webshare_pass"
   ```
 
+> **Note:** Proxy only works for transcript extraction, not for search or channel commands.
+
 ---
 
-### "Arquivo não encontrado"
+### File Not Found
 
 **Cause:** File path doesn't exist.
 
@@ -129,11 +131,11 @@ python --version
 
 ```bash
 # Try with verbose output
-pip install -e git+https://github.com/pedro/youtube-cli.git -v
+pip install -e git+https://github.com/ambrosio45/youtube-cli.git -v
 
 # Or install dependencies first
 pip install youtube-transcript-api google-api-python-client
-pip install -e git+https://github.com/pedro/youtube-cli.git
+pip install -e git+https://github.com/ambrosio45/youtube-cli.git
 ```
 
 ---
@@ -142,4 +144,4 @@ pip install -e git+https://github.com/pedro/youtube-cli.git
 
 - See [REFERENCE.md](REFERENCE.md) for complete documentation
 - See [EXAMPLES.md](EXAMPLES.md) for usage examples
-- Report issues at: https://github.com/pedro/youtube-cli/issues
+- Report issues at: https://github.com/ambrosio45/youtube-cli/issues
