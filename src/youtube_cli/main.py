@@ -777,7 +777,7 @@ Examples:
 
     if is_channel:
         if args.input == "channel":
-            channel_name = args.inputs_extras[0] if args.inputs_extras else ""
+            channel_name = args.extra_inputs[0] if args.extra_inputs else ""
         else:
             channel_name = args.input
 
@@ -832,13 +832,13 @@ Examples:
 
     elif is_search:
         if args.input == "search":
-            query = args.inputs_extras[0] if args.inputs_extras else ""
+            query = args.extra_inputs[0] if args.extra_inputs else ""
             extra_inputs = (
-                args.inputs_extras[1:] if len(args.inputs_extras) > 1 else []
+                args.extra_inputs[1:] if len(args.extra_inputs) > 1 else []
             )
         else:
             query = args.input
-            extra_inputs = args.inputs_extras
+            extra_inputs = args.extra_inputs
 
         if not query:
             print("Error: search term is required", flush=True)
@@ -897,7 +897,7 @@ Examples:
         print(f"Saved: {output_path}", flush=True)
 
     else:
-        urls = [args.input] + args.inputs_extras
+        urls = [args.input] + args.extra_inputs
         output_dir = args.output
         direct_urls = []
         url_file = None
