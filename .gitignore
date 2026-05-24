@@ -9,6 +9,7 @@ dist/
 .eggs/
 *.egg
 .pytest_cache/
+.logs/
 .tox/
 .env
 .venv
